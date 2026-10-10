@@ -2,7 +2,7 @@
 
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Agent } from "@convex-dev/agent";
-import { google } from "@ai-sdk/google";
+import { sarvam } from "sarvam-ai-sdk";
 import { v } from "convex/values";
 import { action } from "./_generated/server";
 import { components, internal } from "./_generated/api";
@@ -21,9 +21,14 @@ Never guilt the user for leaving or pressure them to spend money.`;
 
 const companion = new Agent(components.agent, {
   name: "Saathi",
-  languageModel: google("gemini-3.5-flash-lite"),
+  languageModel: sarvam("sarvam-105b-conversations"),
   instructions: baseInstructions,
   contextOptions: { recentMessages: 12 },
+  callSettings: {
+    maxOutputTokens: 150,
+    temperature: 0.8,
+  },
+  providerOptions: { sarvam: { reasoning_effort: "none" } },
 });
 
 export const startSession = action({
@@ -70,7 +75,7 @@ export const sendMessage = action({
       });
       reply = result.text.trim() || "Main sun raha hoon. Thoda aur batao?";
     } catch (error) {
-      if (!(error instanceof Error) || !error.message.includes("Google Generative AI API key")) throw error;
+      if (!(error instanceof Error) || !error.message.includes("SARVAM_API_KEY")) throw error;
       aiAvailable = false;
       reply = savedMemory
         ? `Samjha — ${savedMemory.note}. Main yaad rakhunga. Thoda aur batao?`
