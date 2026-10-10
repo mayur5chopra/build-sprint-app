@@ -27,10 +27,10 @@ function SignIn() {
 
   return <main className="welcome-shell">
     <section className="welcome-card">
-      <div className="brand-mark" aria-hidden="true">स</div>
-      <p className="ai-label">Saathi is an AI, not a real person</p>
+      <div className="brand-mark" aria-hidden="true">क</div>
+      <p className="ai-label">Kamini is a female AI companion, not a real person</p>
       <h1>Aisi baat, jo yaad rahe.</h1>
-      <p className="welcome-copy">A private Hinglish companion that listens, remembers the small things, and picks up where you left off.</p>
+      <p className="welcome-copy">A female Hinglish AI companion who listens, remembers the small things, and picks up where you left off.</p>
       <form onSubmit={submit} className="auth-form">
         <label>Email<input name="email" type="email" autoComplete="email" required /></label>
         <label>Password<input name="password" type="password" minLength={8} autoComplete={mode === "signUp" ? "new-password" : "current-password"} required /></label>
@@ -53,7 +53,7 @@ function AdultGate() {
       <div className="brand-mark" aria-hidden="true">18+</div>
       <p className="ai-label">Before we start</p>
       <h1>This space is only for adults.</h1>
-      <p>Saathi is an AI companion, not a human, therapist, or emergency service. It does not allow explicit sexual content.</p>
+      <p>Kamini is a female AI companion, not a human, therapist, or emergency service. She does not allow explicit sexual content.</p>
       <label className="check-row"><input type="checkbox" checked={checked} onChange={(event) => setChecked(event.target.checked)} /> I confirm that I am 18 or older.</label>
       <button disabled={!checked || busy} onClick={async () => { setBusy(true); await confirmAdult({ confirmed: true }); }}>
         {busy ? "Saving…" : "I’m 18 — continue"}
@@ -111,26 +111,26 @@ function Chat() {
     } finally { setBusy(false); }
   }
 
-  if (latest === undefined) return <main className="loading">Saathi khul raha hai…</main>;
-  if (!sessionId) return <main className="welcome-shell"><section className="age-card"><div className="brand-mark">स</div><p className="ai-label">Your AI companion</p><h1>Ready when you are.</h1><p>Natural Hinglish mein baat karo. Main chhoti, useful baatein yaad rakhunga.</p><button onClick={newSession} disabled={busy}>{busy ? "Starting…" : "Start talking"}</button></section></main>;
+  if (latest === undefined) return <main className="loading">Kamini khul rahi hai…</main>;
+  if (!sessionId) return <main className="welcome-shell"><section className="age-card"><div className="brand-mark">क</div><p className="ai-label">Your female AI companion</p><h1>Ready when you are.</h1><p>Natural Hinglish mein baat karo. Main chhoti, useful baatein yaad rakhungi.</p><button onClick={newSession} disabled={busy}>{busy ? "Starting…" : "Start talking"}</button></section></main>;
 
   return <main className="chat-shell">
     <header>
-      <div><strong>Saathi</strong><span><i /> AI companion</span></div>
+      <div><strong>Kamini</strong><span><i /> Female AI companion</span></div>
       <nav><button className="quiet-button" onClick={newSession} disabled={busy}>Nayi session</button><button className="quiet-button" onClick={() => void signOut()}>Sign out</button></nav>
     </header>
     {notice && <div className="memory-strip" role="status"><span>yaad hai</span>{notice}</div>}
     <section className="messages" aria-live="polite">
       {messages.results.map((message) => <article key={message._id} className={message.role === "user" ? "message user" : "message assistant"}>
-        <span>{message.role === "user" ? "You" : "Saathi · AI"}</span><p>{message.text}</p>
+        <span>{message.role === "user" ? "You" : "Kamini · AI"}</span><p>{message.text}</p>
       </article>)}
-      {busy && <article className="message assistant thinking"><span>Saathi · AI</span><p>soch raha hoon<span>…</span></p></article>}
+      {busy && <article className="message assistant thinking"><span>Kamini · AI</span><p>soch rahi hoon<span>…</span></p></article>}
       <div ref={endRef} />
     </section>
     <form className="composer" onSubmit={send}>
-      <label htmlFor="message">Message Saathi</label>
+      <label htmlFor="message">Message Kamini</label>
       <div><textarea id="message" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Jo mann mein hai, likho…" rows={1} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }} /><button disabled={!draft.trim() || busy}>Send</button></div>
-      <small>Saathi is AI and can make mistakes.</small>
+      <small>Kamini is AI and can make mistakes.</small>
     </form>
   </main>;
 }

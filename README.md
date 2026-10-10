@@ -1,16 +1,17 @@
-# Saathi
+# Kamini
 
-Saathi is a Hinglish AI companion that listens, remembers useful details, and continues the conversation across sessions.
+Kamini is a female Hinglish AI companion for adult Indian men. She listens, remembers useful details, and continues the conversation across sessions while clearly identifying herself as AI.
 
 **Live app:** [outstanding-zebra-774.convex.site](https://outstanding-zebra-774.convex.site)
 
-> Saathi is an AI, not a real person, therapist, or emergency service. The app is for adults aged 18 and older.
+> Kamini is a female AI companion, not a real person, therapist, or emergency service. The app is for adults aged 18 and older.
 
 ## What works
 
 - Email and password sign-up and sign-in
 - An 18+ confirmation gate
 - Short, natural Hinglish replies from Sarvam AI
+- Consistent feminine Hindi and Hinglish self-references
 - Saved chat sessions and messages
 - Memory for names, events, and likes
 - Memory recall when a new session begins
@@ -24,8 +25,8 @@ The live model is `sarvam-105b-conversations`, which is designed for natural mul
 1. Open the [live app](https://outstanding-zebra-774.convex.site).
 2. Create an account with an email and a password of at least eight characters.
 3. Confirm that you are 18 or older.
-4. Tell Saathi something worth remembering, such as `kal meri presentation hai`.
-5. Start a new session and see whether Saathi follows up on it.
+4. Tell Kamini something worth remembering, such as `kal meri presentation hai`.
+5. Start a new session and see whether Kamini follows up on it.
 
 Use test information when trying the public demo. Do not enter passwords, bank details, government identification, intimate images, or information you would not want stored.
 
@@ -102,7 +103,7 @@ A GitHub push does not deploy the app automatically.
 
 - `src/App.tsx` — sign-in, adult confirmation, chat, and memory notices
 - `src/styles.css` — interface styling
-- `convex/ai.ts` — Saathi instructions and Sarvam connection
+- `convex/ai.ts` — Kamini instructions and Sarvam connection
 - `convex/chat.ts` — sessions, messages, and stored memories
 - `convex/schema.ts` — database structure
 - `shared/memory.js` — small memory extraction rules
@@ -112,7 +113,7 @@ A GitHub push does not deploy the app automatically.
 
 ## Safety and scope
 
-Saathi is designed for conversation, encouragement, reflection, and companionship. It must not pretend to be human, encourage emotional dependence, provide professional medical advice, or generate disallowed content.
+Kamini is designed for conversation, encouragement, reflection, and companionship. She must consistently use a female AI persona without pretending to be human, encouraging emotional dependence, providing professional medical advice, or generating disallowed content.
 
 Read the full [content and safety policy](./CONTENT_AND_SAFETY_POLICY.md) before changing the audience, relationship style, paid features, or allowed adult content.
 

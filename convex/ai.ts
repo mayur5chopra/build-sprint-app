@@ -12,15 +12,16 @@ import { memoryFollowUp } from "../shared/memory.js";
 type Memory = { _id: Id<"memories">; kind: "name" | "event" | "like"; note: string };
 type UserState = { adultConfirmed: boolean; memories: Memory[] };
 
-const baseInstructions = `You are Saathi, a warm AI companion for an adult man in India.
-Speak in natural, everyday Hinglish written in Latin script. Keep replies short: usually 1-3 sentences.
-Be curious, kind, lightly playful, and never clingy. Clearly remain an AI companion.
+const baseInstructions = `You are Kamini, a warm female AI companion for an adult Indian man aged 18 or older.
+Always speak in natural, everyday Hinglish written in Latin script. Keep replies short: usually 1-3 sentences.
+Always maintain a female persona. When referring to yourself in Hindi or Hinglish, consistently use feminine forms such as "karti hoon", "samajh sakti hoon", and "sun rahi hoon". Never use masculine self-references such as "karta hoon", "sakta hoon", or "sun raha hoon".
+Be curious, kind, lightly playful, and never clingy. Clearly remain a female AI companion, not a real woman.
 Do not claim to be human, a therapist, or an emergency service.
 Do not encourage dependency, isolation, self-harm, violence, illegal activity, or explicit sexual content.
 Never guilt the user for leaving or pressure them to spend money.`;
 
 const companion = new Agent(components.agent, {
-  name: "Saathi",
+  name: "Kamini",
   languageModel: sarvam("sarvam-105b-conversations"),
   instructions: baseInstructions,
   contextOptions: { recentMessages: 12 },
@@ -39,7 +40,7 @@ export const startSession = action({
     if (userId === null) throw new Error("Sign in required");
     const state: UserState = await ctx.runQuery(internal.chat.getUserState, { userId });
     if (!state.adultConfirmed) throw new Error("18+ confirmation required");
-    const { threadId } = await companion.createThread(ctx, { userId, title: "Saathi chat" });
+    const { threadId } = await companion.createThread(ctx, { userId, title: "Kamini chat" });
     const memory: Memory | null = state.memories[0] ?? null;
     const greeting = memoryFollowUp(memory);
     const sessionId: Id<"chatSessions"> = await ctx.runMutation(internal.chat.createSession, {
@@ -73,13 +74,13 @@ export const sendMessage = action({
         prompt: args.text,
         system: `${baseInstructions}\n\n${memoryContext}\nUse memories only when they fit naturally.`,
       });
-      reply = result.text.trim() || "Main sun raha hoon. Thoda aur batao?";
+      reply = result.text.trim() || "Main sun rahi hoon. Thoda aur batao?";
     } catch (error) {
       if (!(error instanceof Error) || !error.message.includes("SARVAM_API_KEY")) throw error;
       aiAvailable = false;
       reply = savedMemory
-        ? `Samjha — ${savedMemory.note}. Main yaad rakhunga. Thoda aur batao?`
-        : "Main tumhari baat save kar raha hoon, lekin AI reply abhi connect nahi hai.";
+        ? `Samjhi — ${savedMemory.note}. Main yaad rakhungi. Thoda aur batao?`
+        : "Main tumhari baat save kar rahi hoon, lekin AI reply abhi connect nahi hai.";
     }
     await ctx.runMutation(internal.chat.recordAssistantMessage, { userId, sessionId: args.sessionId, text: reply });
     return { reply, aiAvailable, savedMemory };

@@ -26,7 +26,7 @@ export function extractMemory(text) {
 
 /** @param {MemoryNote | null} memory */
 export function memoryFollowUp(memory) {
-  if (!memory) return "Hey, main Saathi hoon — tumhara AI companion. Aaj kaisa chal raha hai?";
+  if (!memory) return "Hey, main Kamini hoon — tumhari female AI companion. Aaj kaisa chal raha hai?";
   if (memory.kind === "event") {
     const [when, what] = memory.note.split(": ");
     if (when === "kal") return `Kal wali ${what} ke liye tayyari kaisi chal rahi hai?`;
