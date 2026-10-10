@@ -1,6 +1,6 @@
 # V1 test proof
 
-Tested on October 10, 2026.
+Tested on October 10 and 11, 2026.
 
 ## Automated memory test
 
@@ -46,6 +46,17 @@ Verified in Chrome against the live Convex production deployment:
 10. Kamini replied `Main tumhari baat sun rahi hoon.`.
 
 This confirms the live model identifies as a female AI companion and uses feminine Hinglish grammar.
+
+## Personality test
+
+Verified in Chrome against the live Convex production deployment on October 11, 2026:
+
+1. Sent `Aaj office mein meri presentation kharab ho gayi. Boss ne sabke saamne bola ki main prepared nahi tha.`
+2. Kamini responded to the specific embarrassment: `Public mein boss aisa bole toh sach mein bahut awkward feel hota hai.`
+3. Sent the upbeat twist that the client liked the idea.
+4. Kamini changed tone naturally: `Hahaha, yeh toh sach mein achha twist hai!` and connected it to the earlier message.
+
+This confirms the live model notices specific details, follows the conversation, and changes tone without dropping the female Hinglish persona.
 
 ## AI connection status
 
