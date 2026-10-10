@@ -101,7 +101,7 @@ function Chat() {
     try {
       const result = await sendMessage({ sessionId, text });
       if (!result.aiAvailable) {
-        setNotice("Memory works. Live AI replies need the Convex AI gateway or a provider key.");
+        setNotice("Memory works. Live AI replies need the Gemini API key in Convex.");
       } else if (result.savedMemory) {
         setNotice(`Yaad rakha: ${result.savedMemory.note}`);
       }
