@@ -31,4 +31,13 @@ After remote activity was stopped, `/?offline-preview=1` was opened. The page wa
 
 `npx convex dev --once` was run once during verification. It updated the configured Convex **development** deployment `mayur5chopra:build-sprint-app:dev/mayur5chopra` at `valiant-guineapig-831.convex.cloud` with the new functions and indexes. This was outside the no-deploy constraint. No rollback was attempted after the user instructed all Convex remote commands to stop.
 
+On October 13, 2026, Mayur explicitly decided to retain this development update. It must not be rolled back. This decision applies only to the development deployment named above; it does not authorize another Convex command, deployment, credential change, or production update.
+
 No production deployment was run. No Git push was run. No real Meta or WhatsApp endpoint was called. No Meta credentials were created or stored.
+
+## Remaining verification gaps
+
+- The retained development update has not been rechecked with another remote Convex command.
+- No production deployment or production behavior has been tested.
+- Real Meta webhook traffic, WhatsApp delivery, and template delivery have not been tested.
+- WhatsApp commercial eligibility, India pricing, and compliance have not been assessed.

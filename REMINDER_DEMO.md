@@ -53,3 +53,11 @@ npx tsc --noEmit -p convex/tsconfig.json
 ```
 
 Do not use `npm run deploy` for this demo without a separate release decision.
+
+## Development deployment handoff
+
+One `npx convex dev --once` command previously synchronized the new Reminder Demo functions and indexes to the configured Convex **development** deployment `mayur5chopra:build-sprint-app:dev/mayur5chopra` at `valiant-guineapig-831.convex.cloud`. It did not update production and did not push Git.
+
+Mayur explicitly decided on October 13, 2026 to retain that development update. Do not roll it back. This is not permission to run another remote Convex command, deploy, change credentials, or contact Meta or WhatsApp.
+
+The retained development deployment has not been remotely rechecked. Production behavior, real Meta webhook traffic, real WhatsApp delivery, template delivery, commercial eligibility, India pricing, and compliance remain unverified.
