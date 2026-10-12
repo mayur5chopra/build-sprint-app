@@ -2,7 +2,7 @@ import { convexTest } from "convex-test";
 import { makeFunctionReference } from "convex/server";
 import { describe, expect, test, vi } from "vitest";
 import schema from "../convex/schema";
-import { buildMetaTemplatePayload, buildMetaTextPayload, extractMetaTextMessages } from "../shared/metaCloud.js";
+import { buildMetaTemplatePayload, buildMetaTextPayload, extractMetaDeliveryStatuses, extractMetaTextMessages } from "../shared/metaCloud.js";
 import { createMetaSignature, verifyMetaSignature } from "../shared/metaSignature.js";
 import { parseReminderCommand } from "../shared/reminderCommands.js";
 
@@ -66,18 +66,32 @@ describe("Meta boundary", () => {
     await expect(verifyMetaSignature(body, null, "test-secret")).resolves.toBe(false);
   });
 
-  test("extracts supported text safely and keeps templates unimplemented", () => {
+  test("extracts supported text safely and builds approved templates", () => {
     const payload = {
       entry: [{ changes: [{ value: { messages: [
-        { id: "wamid.1", from: "919999999999", type: "text", text: { body: "tasks" } },
+        { id: "wamid.1", from: "919999999999", type: "text", text: { body: "tasks" }, context: { id: "wamid.out" } },
         { id: "wamid.2", from: "919999999999", type: "image" },
       ] } }] }],
     };
     expect(extractMetaTextMessages(payload)).toEqual([
-      { externalMessageId: "wamid.1", externalUserId: "919999999999", text: "tasks" },
+      { externalMessageId: "wamid.1", externalUserId: "919999999999", text: "tasks", replyToExternalMessageId: "wamid.out" },
     ]);
     expect(buildMetaTextPayload("919999999999", "hello")).toMatchObject({ type: "text", to: "919999999999" });
-    expect(() => buildMetaTemplatePayload()).toThrow("Template sending is not implemented");
+    expect(buildMetaTemplatePayload("919999999999", "smriti_task_due", "en", ["Submit report"]))
+      .toMatchObject({
+        type: "template",
+        to: "919999999999",
+        template: { name: "smriti_task_due", language: { code: "en" } },
+      });
+    expect(extractMetaDeliveryStatuses({
+      entry: [{ changes: [{ value: { statuses: [
+        { id: "wamid.out", status: "delivered" },
+        { id: "wamid.failed", status: "failed", errors: [{ code: 131047 }] },
+      ] } }] }],
+    })).toEqual([
+      { providerMessageId: "wamid.out", status: "delivered" },
+      { providerMessageId: "wamid.failed", status: "failed", errorCode: "131047" },
+    ]);
   });
 
   test("the demo Meta adapter fails closed without making a network call", async () => {

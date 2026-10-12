@@ -68,6 +68,14 @@ button { cursor: pointer; }
 .demo-reminder-card small { display: block; color: #75847c; margin-top: 5px; font-size: 11px; }
 .demo-reminder-card > div { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
 
+.smriti-policy-shell { min-height: 100vh; padding: 40px 20px; background: #eef3ef; color: #17211d; }
+.smriti-policy-card { width: min(760px, 100%); margin: 0 auto; padding: clamp(24px, 5vw, 52px); border: 1px solid #d8e1dc; border-radius: 24px; background: white; box-shadow: 0 22px 60px rgba(31, 61, 46, .1); }
+.smriti-policy-brand { display: inline-flex; align-items: center; gap: 10px; color: #17211d; font-size: 18px; font-weight: 800; text-decoration: none; }
+.smriti-policy-card h1 { margin: 8px 0 18px; font-size: clamp(36px, 7vw, 58px); letter-spacing: -.05em; }
+.smriti-policy-card h2 { margin: 28px 0 8px; font-size: 19px; }
+.smriti-policy-card p { color: #52615a; line-height: 1.65; }
+.smriti-policy-note { margin-top: 30px; padding: 14px; border-radius: 12px; background: #eef7f1; }
+
 @media (max-width: 840px) {
   .demo-layout { grid-template-columns: 1fr; }
   .demo-chat { min-height: 52vh; max-height: 58vh; }

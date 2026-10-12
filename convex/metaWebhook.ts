@@ -1,8 +1,10 @@
 import { v } from "convex/values";
-import { extractMetaTextMessages } from "../shared/metaCloud.js";
+import { extractMetaDeliveryStatuses, extractMetaTextMessages } from "../shared/metaCloud.js";
 import { verifyMetaSignature } from "../shared/metaSignature.js";
 import { internal } from "./_generated/api";
 import { httpAction, internalAction } from "./_generated/server";
+
+const internalApi = internal as any;
 
 export const verify = httpAction(async (_ctx, request) => {
   const url = new URL(request.url);
@@ -31,11 +33,14 @@ export const receive = httpAction(async (ctx, request) => {
     return new Response("Invalid JSON", { status: 400 });
   }
   const messages = extractMetaTextMessages(payload).slice(0, 20);
-  const results = [];
+  const statuses = extractMetaDeliveryStatuses(payload).slice(0, 50);
   for (const message of messages) {
-    results.push(await ctx.runMutation(internal.messages.processWhatsApp, message));
+    await ctx.scheduler.runAfter(0, internalApi.smriti.processWhatsApp, message);
   }
-  return Response.json({ accepted: true, processed: results.length, results });
+  for (const status of statuses) {
+    await ctx.runMutation(internalApi.smriti.recordMetaDeliveryStatus, status);
+  }
+  return Response.json({ accepted: true, queued: messages.length, statuses: statuses.length });
 });
 
 export const adapterStatus = internalAction({

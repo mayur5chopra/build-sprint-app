@@ -22,6 +22,36 @@ export function extractMetaTextMessages(payload) {
             externalMessageId: message.id,
             externalUserId: message.from,
             text: message.text.body,
+            ...(typeof message.context?.id === "string"
+              ? { replyToExternalMessageId: message.context.id }
+              : {}),
+          });
+        }
+      }
+    }
+  }
+  return result;
+}
+
+/** Extract final delivery updates from a Meta webhook payload. */
+export function extractMetaDeliveryStatuses(payload) {
+  if (!payload || typeof payload !== "object") return [];
+  const entries = Array.isArray(payload.entry) ? payload.entry : [];
+  const result = [];
+  for (const entry of entries) {
+    const changes = Array.isArray(entry?.changes) ? entry.changes : [];
+    for (const change of changes) {
+      const statuses = Array.isArray(change?.value?.statuses) ? change.value.statuses : [];
+      for (const status of statuses) {
+        if (
+          typeof status?.id === "string" &&
+          ["sent", "delivered", "read", "failed"].includes(status.status)
+        ) {
+          const firstError = Array.isArray(status.errors) ? status.errors[0] : undefined;
+          result.push({
+            providerMessageId: status.id,
+            status: status.status,
+            ...(firstError?.code === undefined ? {} : { errorCode: String(firstError.code) }),
           });
         }
       }
@@ -41,6 +71,28 @@ export function buildMetaTextPayload(to, text) {
   };
 }
 
-export function buildMetaTemplatePayload() {
-  throw new Error("Template sending is not implemented in Reminder Demo");
+export function buildMetaTemplatePayload(to, templateName, languageCode, parameters) {
+  if (!to || !templateName || !languageCode) {
+    throw new Error("Recipient, template name, and language are required");
+  }
+  const safeParameters = Array.isArray(parameters) ? parameters : [];
+  if (safeParameters.some((value) => typeof value !== "string" || !value.trim())) {
+    throw new Error("Template parameters must be non-empty strings");
+  }
+  return {
+    messaging_product: "whatsapp",
+    recipient_type: "individual",
+    to,
+    type: "template",
+    template: {
+      name: templateName,
+      language: { code: languageCode },
+      ...(safeParameters.length === 0 ? {} : {
+        components: [{
+          type: "body",
+          parameters: safeParameters.map((text) => ({ type: "text", text })),
+        }],
+      }),
+    },
+  };
 }

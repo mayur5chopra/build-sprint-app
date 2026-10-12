@@ -4,11 +4,17 @@ import { ConvexReactClient } from "convex/react";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import App from "./App";
 import ReminderDemoStaticPreview from "./ReminderDemoStaticPreview";
+import PrivacyPage from "./PrivacyPage";
 import "./styles.css";
 
+const privacyPage = window.location.pathname === "/privacy";
 const offlinePreview = import.meta.env.DEV && new URLSearchParams(window.location.search).has("offline-preview");
 
-if (offlinePreview) {
+if (privacyPage) {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode><PrivacyPage /></React.StrictMode>,
+  );
+} else if (offlinePreview) {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode><ReminderDemoStaticPreview /></React.StrictMode>,
   );

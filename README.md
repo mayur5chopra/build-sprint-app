@@ -1,128 +1,134 @@
-# Kamini
+# Smriti
 
-Kamini is a female Hinglish AI companion for adult Indian men. She listens, remembers useful details, and continues the conversation across sessions while clearly identifying herself as AI.
+Smriti is a private-first WhatsApp task assistant for English and Hinglish work reminders. Send one message with a task, date, and time; Smriti tracks it, classifies it, reminds you, and keeps it in the 8 AM summary until it is done.
 
-**Live app:** [outstanding-zebra-774.convex.site](https://outstanding-zebra-774.convex.site)
+The approved first-version scope is in [IDEA_SCOPE.md](./IDEA_SCOPE.md).
 
-> Kamini is a female AI companion, not a real person, therapist, or emergency service. The app is for adults aged 18 and older.
+## Current status
 
-## What works
+- The browser simulator works with Convex development data.
+- One-time and daily, weekly, or monthly repeating tasks are supported.
+- Missing dates or times produce one follow-up question instead of a guess.
+- Tasks are classified by urgency and importance.
+- Convex schedules task reminders and the 8 AM India-time summary.
+- Reply-to-message handling identifies the exact task for `done`, `cancel`, rescheduling, or classification changes.
+- Completed tasks are deleted after 15 days.
+- `delete my data` requires confirmation before Smriti data is removed.
+- The Meta webhook verifies its signature, deduplicates incoming messages, and records delivery updates.
+- Real WhatsApp sending requires the dedicated Meta number, production token, and approved templates listed below.
 
-- Email and password sign-up and sign-in
-- An 18+ confirmation gate
-- Short, natural Hinglish replies from Sarvam AI
-- Consistent feminine Hindi and Hinglish self-references
-- Saved chat sessions and messages
-- Memory for names, events, and likes
-- Memory recall when a new session begins
-- Clear AI disclosure and safety boundaries
-- Frontend, backend, database, authentication, and hosting on Convex
+Kamini's older tables and code remain in the repository so its existing chats and memories are not deleted by the Smriti build.
 
-The live model is `sarvam-105b-conversations`, which is designed for natural multi-turn conversation and Indian languages.
+## Stack
 
-## Try the main flow
+- Meta WhatsApp Cloud API for the user interface
+- Convex for the database, functions, scheduling, webhook, authentication, and static hosting
+- Sarvam for structured English and Hinglish task extraction
+- React and Vite for the private browser simulator and privacy page
+- GitHub for source control
 
-1. Open the [live app](https://outstanding-zebra-774.convex.site).
-2. Create an account with an email and a password of at least eight characters.
-3. Confirm that you are 18 or older.
-4. Tell Kamini something worth remembering, such as `kal meri presentation hai`.
-5. Start a new session and see whether Kamini follows up on it.
+No separate host, database, login service, or scheduler is used.
 
-Use test information when trying the public demo. Do not enter passwords, bank details, government identification, intimate images, or information you would not want stored.
+## Run locally
 
-## Run it locally
-
-Requirements:
-
-- Node.js and npm
-- A Convex account
-- A Sarvam AI API key with available credits
-
-Install the packages:
+Install packages:
 
 ```bash
 npm install
 ```
 
-Connect the project to a Convex development deployment:
+Connect the Convex development deployment:
 
 ```bash
 npx convex dev
 ```
 
-Keep that command running. Open a second Terminal window for the remaining local commands.
-
-Store the Sarvam key securely in Convex. The command asks for the value without requiring it in the command itself:
-
-```bash
-npx convex env set SARVAM_API_KEY
-```
-
-Start the frontend:
+Start the browser simulator in a second Terminal window:
 
 ```bash
 npm run dev
 ```
 
-Do not add API keys to source files or commit `.env.local`. That file is already ignored by Git.
+Never add secrets to source files or commit `.env.local`.
 
-## Check the app
+## Required Convex environment variables
 
-Run the memory proof:
+Sarvam task extraction:
 
-```bash
-npm run test:memory
+- `SARVAM_API_KEY`
+
+Meta webhook verification and signing:
+
+- `META_WEBHOOK_VERIFY_TOKEN`
+- `META_APP_SECRET`
+
+Meta message sending:
+
+- `META_ACCESS_TOKEN`
+- `META_PHONE_NUMBER_ID`
+- `META_TASK_REMINDER_TEMPLATE`
+- `META_DAILY_SUMMARY_TEMPLATE`
+- `META_TEMPLATE_LANGUAGE` (normally `en`)
+- `META_GRAPH_API_VERSION` (optional so Meta's version can be changed without editing code)
+
+Store values through `npx convex env set VARIABLE_NAME`; do not put the value directly in a saved command or document.
+
+## Meta configuration
+
+Use this callback after deploying:
+
+```text
+https://YOUR-CONVEX-SITE.convex.site/webhooks/meta
 ```
 
-Run the production build and TypeScript checks:
+Subscribe the WhatsApp account to message and message-status webhooks. Create and approve these utility templates before live reminder testing:
+
+- `smriti_task_due` with two body variables: task title and due time
+- `smriti_daily_summary` with one body variable: pending-task summary
+
+The privacy policy is available at `/privacy` on the deployed site.
+
+## Verification
+
+Run the automated behavior checks:
+
+```bash
+npm test
+```
+
+Run TypeScript and the production frontend build:
 
 ```bash
 npm run build
-npx tsc --noEmit -p convex/tsconfig.json
 ```
 
-The latest manual and automated evidence is recorded in [TEST_PROOF.md](./TEST_PROOF.md).
-
-## Deploy
-
-First, store the Sarvam key in the Convex production environment:
+Push backend functions to the connected development deployment:
 
 ```bash
-npx convex env set SARVAM_API_KEY --prod
+npx convex dev --once
 ```
 
-Then deploy the backend and static frontend together:
+Deploy the backend and static website together:
 
 ```bash
 npm run deploy
 ```
 
-A GitHub push does not deploy the app automatically.
+A GitHub push does not deploy the Convex site.
 
 ## Project map
 
-- `src/App.tsx` — sign-in, adult confirmation, chat, and memory notices
-- `src/styles.css` — interface styling
-- `convex/ai.ts` — Kamini instructions and Sarvam connection
-- `convex/chat.ts` — sessions, messages, and stored memories
-- `convex/schema.ts` — database structure
-- `shared/memory.js` — small memory extraction rules
-- `scripts/memory-proof.mjs` — repeatable memory check
-- `CONTENT_AND_SAFETY_POLICY.md` — product safety boundaries
-- `TEST_PROOF.md` — current verification evidence and cost estimate
-
-## Safety and scope
-
-Kamini is designed for conversation, encouragement, reflection, and companionship. She must consistently use a female AI persona without pretending to be human, encouraging emotional dependence, providing professional medical advice, or generating disallowed content.
-
-Read the full [content and safety policy](./CONTENT_AND_SAFETY_POLICY.md) before changing the audience, relationship style, paid features, or allowed adult content.
-
-## Stack
-
-- React and Vite
-- Convex database, functions, authentication, AI agent threads, and static hosting
-- Sarvam AI for live Hinglish replies
-- GitHub for source control
+- `src/ReminderDemoApp.tsx` — private browser simulator for the Smriti conversation
+- `src/PrivacyPage.tsx` — public privacy policy required for the WhatsApp setup
+- `convex/smriti.ts` — task conversation, completion, edits, deletion, and simulator actions
+- `convex/smritiAi.ts` — structured Sarvam task extraction
+- `convex/smritiWorker.ts` — scheduled reminder delivery and retries
+- `convex/smritiDaily.ts` — 8 AM summary and 15-day cleanup
+- `convex/smritiDeliveryAdapter.ts` — Meta Cloud API sender
+- `convex/metaWebhook.ts` — verified incoming Meta webhook
+- `shared/smritiRules.ts` — date, repetition, summary, and retention rules
+- `tests/smriti-rules.test.ts` — pure scheduling-rule checks
+- `tests/smriti-backend.test.ts` — database isolation, completion, recurrence, and deletion checks
 
 ## License
 
