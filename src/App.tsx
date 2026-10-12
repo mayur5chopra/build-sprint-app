@@ -3,6 +3,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Authenticated, Unauthenticated, useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import ReminderDemoApp from "./ReminderDemoApp";
 
 function SignIn() {
   const { signIn } = useAuthActions();
@@ -141,6 +142,8 @@ function SignedInApp() {
   return profile === null ? <AdultGate /> : <Chat />;
 }
 
-export default function App() {
+export function KaminiApp() {
   return <><Unauthenticated><SignIn /></Unauthenticated><Authenticated><SignedInApp /></Authenticated></>;
 }
+
+export default ReminderDemoApp;

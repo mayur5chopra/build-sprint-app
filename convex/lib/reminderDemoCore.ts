@@ -1,9 +1,16 @@
+import type { FunctionReference } from "convex/server";
 import type { Id } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
 
 type CoreCtx = Pick<MutationCtx, "db" | "scheduler">;
 
 export type ReminderChannel = "simulator" | "whatsapp";
+type ReminderWorkerReference = FunctionReference<
+  "action",
+  "internal",
+  { reminderId: Id<"reminderDemoReminders">; version: number; attempt: number },
+  null
+>;
 
 export function checkedText(value: string, label: string) {
   const cleaned = value.trim().replace(/\s+/g, " ");
@@ -15,7 +22,7 @@ export function checkedText(value: string, label: string) {
 export async function ensureSettings(ctx: CoreCtx, userId: Id<"users">) {
   const existing = await ctx.db
     .query("reminderDemoSettings")
-    .withIndex("by_user", (q: any) => q.eq("userId", userId))
+    .withIndex("by_user", (q) => q.eq("userId", userId))
     .unique();
   if (existing !== null) return existing.timezone;
   const now = Date.now();
@@ -54,7 +61,7 @@ export async function createTaskCore(ctx: CoreCtx, userId: Id<"users">, title: s
 
 export async function createReminderCore(
   ctx: CoreCtx,
-  schedulerReference: any,
+  schedulerReference: ReminderWorkerReference,
   userId: Id<"users">,
   input: { text: string; dueAt: number; channel: ReminderChannel },
 ) {
@@ -81,7 +88,7 @@ export async function createReminderCore(
 export async function listOpenTasksCore(ctx: CoreCtx, userId: Id<"users">) {
   return await ctx.db
     .query("reminderDemoTasks")
-    .withIndex("by_user_status_created", (q: any) =>
+    .withIndex("by_user_status_created", (q) =>
       q.eq("userId", userId).eq("status", "open"),
     )
     .order("desc")
@@ -91,10 +98,10 @@ export async function listOpenTasksCore(ctx: CoreCtx, userId: Id<"users">) {
 export async function listActiveRemindersCore(ctx: CoreCtx, userId: Id<"users">) {
   const recent = await ctx.db
     .query("reminderDemoReminders")
-    .withIndex("by_user_created", (q: any) => q.eq("userId", userId))
+    .withIndex("by_user_created", (q) => q.eq("userId", userId))
     .order("desc")
     .take(100);
-  return recent.filter((item: any) => item.status !== "completed" && item.status !== "cancelled");
+  return recent.filter((item) => item.status !== "completed" && item.status !== "cancelled");
 }
 
 export async function completeTaskCore(
@@ -111,7 +118,7 @@ export async function completeTaskCore(
 
 export async function changeReminderCore(
   ctx: CoreCtx,
-  schedulerReference: any,
+  schedulerReference: ReminderWorkerReference,
   userId: Id<"users">,
   reminderId: Id<"reminderDemoReminders">,
   change:

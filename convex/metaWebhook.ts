@@ -4,8 +4,6 @@ import { verifyMetaSignature } from "../shared/metaSignature.js";
 import { internal } from "./_generated/api";
 import { httpAction, internalAction } from "./_generated/server";
 
-const internalApi = internal as any;
-
 export const verify = httpAction(async (_ctx, request) => {
   const url = new URL(request.url);
   const expectedToken = process.env.META_WEBHOOK_VERIFY_TOKEN;
@@ -35,7 +33,7 @@ export const receive = httpAction(async (ctx, request) => {
   const messages = extractMetaTextMessages(payload).slice(0, 20);
   const results = [];
   for (const message of messages) {
-    results.push(await ctx.runMutation(internalApi.messages.processWhatsApp, message));
+    results.push(await ctx.runMutation(internal.messages.processWhatsApp, message));
   }
   return Response.json({ accepted: true, processed: results.length, results });
 });

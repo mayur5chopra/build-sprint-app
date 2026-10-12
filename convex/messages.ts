@@ -4,6 +4,7 @@ import { parseReminderCommand, reminderDemoHelp } from "../shared/reminderComman
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 import {
   changeReminderCore,
   createNoteCore,
@@ -12,8 +13,6 @@ import {
   listActiveRemindersCore,
   listOpenTasksCore,
 } from "./lib/reminderDemoCore";
-
-const internalApi = internal as any;
 
 const messageResult = v.object({
   _id: v.id("reminderDemoMessages"),
@@ -29,7 +28,7 @@ function numbered(items: string[], empty: string) {
 }
 
 async function executeCommand(
-  ctx: any,
+  ctx: MutationCtx,
   userId: Id<"users">,
   text: string,
   channel: "simulator" | "whatsapp",
@@ -46,26 +45,26 @@ async function executeCommand(
     case "list_notes": {
       const notes = await ctx.db
         .query("reminderDemoNotes")
-        .withIndex("by_user_created", (q: any) => q.eq("userId", userId))
+        .withIndex("by_user_created", (q) => q.eq("userId", userId))
         .order("desc")
         .take(20);
-      return numbered(notes.map((note: any) => note.body), "No notes saved yet.");
+      return numbered(notes.map((note) => note.body), "No notes saved yet.");
     }
     case "find_notes": {
       const notes = await ctx.db
         .query("reminderDemoNotes")
-        .withSearchIndex("search_body", (q: any) =>
+        .withSearchIndex("search_body", (q) =>
           q.search("searchText", command.query.toLocaleLowerCase()).eq("userId", userId),
         )
         .take(20);
-      return numbered(notes.map((note: any) => note.body), `No notes found for “${command.query}”.`);
+      return numbered(notes.map((note) => note.body), `No notes found for “${command.query}”.`);
     }
     case "create_task":
       await createTaskCore(ctx, userId, command.title);
       return `Created task: ${command.title}`;
     case "list_tasks": {
       const tasks = await listOpenTasksCore(ctx, userId);
-      return numbered(tasks.map((task: any) => task.title), "No open tasks.");
+      return numbered(tasks.map((task) => task.title), "No open tasks.");
     }
     case "complete_task": {
       const tasks = await listOpenTasksCore(ctx, userId);
@@ -75,7 +74,7 @@ async function executeCommand(
       return `Completed task: ${task.title}`;
     }
     case "create_reminder": {
-      await createReminderCore(ctx, internalApi.reminderWorker.deliver, userId, {
+      await createReminderCore(ctx, internal.reminderWorker.deliver, userId, {
         text: command.text,
         dueAt: command.dueAt,
         channel,
@@ -85,7 +84,7 @@ async function executeCommand(
     case "list_reminders": {
       const reminders = await listActiveRemindersCore(ctx, userId);
       return numbered(
-        reminders.map((reminder: any) =>
+        reminders.map((reminder) =>
           `${reminder.text} — ${new Date(reminder.dueAt).toISOString()} (${reminder.status})`,
         ),
         "No active reminders.",
@@ -98,14 +97,14 @@ async function executeCommand(
       const reminder = reminders[command.position - 1];
       if (!reminder) return `Reminder ${command.position} was not found. Send “reminders” to refresh the list.`;
       if (command.kind === "complete_reminder") {
-        await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, reminder._id, { kind: "complete" });
+        await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, reminder._id, { kind: "complete" });
         return `Completed reminder: ${reminder.text}`;
       }
       if (command.kind === "cancel_reminder") {
-        await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, reminder._id, { kind: "cancel" });
+        await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, reminder._id, { kind: "cancel" });
         return `Cancelled reminder: ${reminder.text}`;
       }
-      const changed = await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, reminder._id, {
+      const changed = await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, reminder._id, {
         kind: "snooze",
         delayMs: command.delayMs,
       });
@@ -115,7 +114,7 @@ async function executeCommand(
 }
 
 async function processInbound(
-  ctx: any,
+  ctx: MutationCtx,
   input: {
     userId: Id<"users">;
     provider: "simulator" | "whatsapp";
@@ -127,7 +126,7 @@ async function processInbound(
   if (!messageId || messageId.length > 200) throw new Error("Message ID is invalid");
   const existing = await ctx.db
     .query("reminderDemoInboundMessages")
-    .withIndex("by_provider_message", (q: any) =>
+    .withIndex("by_provider_message", (q) =>
       q.eq("provider", input.provider).eq("externalMessageId", messageId),
     )
     .unique();

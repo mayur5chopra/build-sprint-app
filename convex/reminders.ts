@@ -1,10 +1,9 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { changeReminderCore, createReminderCore } from "./lib/reminderDemoCore";
-
-const internalApi = internal as any;
 
 const reminderStatus = v.union(
   v.literal("scheduled"),
@@ -29,10 +28,10 @@ const reminderResult = v.object({
 export const create = mutation({
   args: { text: v.string(), dueAt: v.number() },
   returns: v.id("reminderDemoReminders"),
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<Id<"reminderDemoReminders">> => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Sign in required");
-    return await createReminderCore(ctx, internalApi.reminderWorker.deliver, userId, {
+    return await createReminderCore(ctx, internal.reminderWorker.deliver, userId, {
       text: args.text,
       dueAt: args.dueAt,
       channel: "simulator",
@@ -71,7 +70,7 @@ export const complete = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Sign in required");
-    await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, args.reminderId, { kind: "complete" });
+    await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, args.reminderId, { kind: "complete" });
     return null;
   },
 });
@@ -82,7 +81,7 @@ export const cancel = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Sign in required");
-    await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, args.reminderId, { kind: "cancel" });
+    await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, args.reminderId, { kind: "cancel" });
     return null;
   },
 });
@@ -94,7 +93,7 @@ export const snooze = mutation({
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Sign in required");
     if (args.delayMs < 1_000 || args.delayMs > 365 * 86_400_000) throw new Error("Snooze duration is invalid");
-    await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, args.reminderId, {
+    await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, args.reminderId, {
       kind: "snooze",
       delayMs: args.delayMs,
     });
@@ -108,7 +107,7 @@ export const edit = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Sign in required");
-    await changeReminderCore(ctx, internalApi.reminderWorker.deliver, userId, args.reminderId, {
+    await changeReminderCore(ctx, internal.reminderWorker.deliver, userId, args.reminderId, {
       kind: "edit",
       text: args.text,
       dueAt: args.dueAt,
