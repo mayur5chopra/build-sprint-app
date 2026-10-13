@@ -71,6 +71,15 @@ export function buildMetaTextPayload(to, text) {
   };
 }
 
+const META_CUSTOMER_SERVICE_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** Free-form WhatsApp replies are allowed for 24 hours after a user messages the business. */
+export function canUseMetaFreeform(lastInboundAt, now = Date.now()) {
+  return Number.isFinite(lastInboundAt) &&
+    lastInboundAt <= now &&
+    now - lastInboundAt < META_CUSTOMER_SERVICE_WINDOW_MS;
+}
+
 export function buildMetaTemplatePayload(to, templateName, languageCode, parameters) {
   if (!to || !templateName || !languageCode) {
     throw new Error("Recipient, template name, and language are required");

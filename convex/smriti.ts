@@ -179,6 +179,9 @@ export const beginInbound = internalMutation({
       };
     }
     const now = Date.now();
+    if (args.provider === "whatsapp") {
+      await ctx.db.patch(userId, { lastInboundAt: now, updatedAt: now });
+    }
     await ctx.db.insert("smritiInboundMessages", {
       userId,
       provider: args.provider,

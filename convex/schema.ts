@@ -135,6 +135,7 @@ export default defineSchema({
     timezone: v.string(),
     summaryHour: v.number(),
     nextSummaryAt: v.number(),
+    lastInboundAt: v.optional(v.number()),
     status: v.union(v.literal("active"), v.literal("deleting")),
     deleteConfirmationRequestedAt: v.optional(v.number()),
     createdAt: v.number(),

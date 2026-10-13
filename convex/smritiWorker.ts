@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { canUseMetaFreeform } from "../shared/metaCloud.js";
 import { formatSmritiTime } from "../shared/smritiRules";
 import { internal } from "./_generated/api";
 import { internalAction, internalMutation } from "./_generated/server";
@@ -26,6 +27,7 @@ export const claim = internalMutation({
       text: v.string(),
       dueText: v.string(),
       channel: v.union(v.literal("simulator"), v.literal("whatsapp")),
+      mode: v.union(v.literal("text"), v.literal("template")),
       to: v.optional(v.string()),
     }),
   ),
@@ -74,6 +76,9 @@ export const claim = internalMutation({
       text: task.title,
       dueText: formatSmritiTime(task.dueAt),
       channel: task.channel,
+      mode: task.channel === "whatsapp" && !canUseMetaFreeform(user.lastInboundAt, now)
+        ? ("template" as const)
+        : ("text" as const),
       ...(user.whatsappId ? { to: user.whatsappId } : {}),
     };
   },
@@ -158,13 +163,14 @@ export const deliverTask = internalAction({
       text: string;
       dueText: string;
       channel: "simulator" | "whatsapp";
+      mode: "text" | "template";
       to?: string;
     };
     if (claimed === null) return null;
     const result = await ctx.runAction(internalApi.smritiDeliveryAdapter.send, {
       channel: claimed.channel,
       to: claimed.to,
-      mode: claimed.channel === "whatsapp" ? "template" : "text",
+      mode: claimed.mode,
       text: `⏰ Reminder: ${claimed.text}`,
       templateName: process.env.META_TASK_REMINDER_TEMPLATE ?? "smriti_task_due",
       templateParameters: [claimed.text, claimed.dueText],

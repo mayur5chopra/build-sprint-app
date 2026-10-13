@@ -2,7 +2,7 @@ import { convexTest } from "convex-test";
 import { makeFunctionReference } from "convex/server";
 import { describe, expect, test, vi } from "vitest";
 import schema from "../convex/schema";
-import { buildMetaTemplatePayload, buildMetaTextPayload, extractMetaDeliveryStatuses, extractMetaTextMessages } from "../shared/metaCloud.js";
+import { buildMetaTemplatePayload, buildMetaTextPayload, canUseMetaFreeform, extractMetaDeliveryStatuses, extractMetaTextMessages } from "../shared/metaCloud.js";
 import { createMetaSignature, verifyMetaSignature } from "../shared/metaSignature.js";
 import { parseReminderCommand } from "../shared/reminderCommands.js";
 
@@ -92,6 +92,14 @@ describe("Meta boundary", () => {
       { providerMessageId: "wamid.out", status: "delivered" },
       { providerMessageId: "wamid.failed", status: "failed", errorCode: "131047" },
     ]);
+  });
+
+  test("uses normal WhatsApp text only inside the 24-hour customer window", () => {
+    const now = Date.UTC(2026, 9, 13, 10, 0, 0);
+    expect(canUseMetaFreeform(now - 23 * 60 * 60 * 1000, now)).toBe(true);
+    expect(canUseMetaFreeform(now - 24 * 60 * 60 * 1000, now)).toBe(false);
+    expect(canUseMetaFreeform(undefined, now)).toBe(false);
+    expect(canUseMetaFreeform(now + 1, now)).toBe(false);
   });
 
   test("the demo Meta adapter fails closed without making a network call", async () => {

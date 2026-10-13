@@ -1,4 +1,5 @@
 import { v } from "convex/values";
+import { canUseMetaFreeform } from "../shared/metaCloud.js";
 import { nextSummaryAt } from "../shared/smritiRules";
 import { internal } from "./_generated/api";
 import { internalAction, internalMutation, internalQuery } from "./_generated/server";
@@ -18,6 +19,7 @@ export const claimDueUsers = internalMutation({
   returns: v.array(v.object({
     userId: v.id("smritiUsers"),
     channel: v.union(v.literal("simulator"), v.literal("whatsapp")),
+    mode: v.union(v.literal("text"), v.literal("template")),
     to: v.optional(v.string()),
   })),
   handler: async (ctx, args) => {
@@ -36,6 +38,9 @@ export const claimDueUsers = internalMutation({
     return users.map((user) => ({
       userId: user._id,
       channel: user.whatsappId ? ("whatsapp" as const) : ("simulator" as const),
+      mode: user.whatsappId && !canUseMetaFreeform(user.lastInboundAt, args.now)
+        ? ("template" as const)
+        : ("text" as const),
       ...(user.whatsappId ? { to: user.whatsappId } : {}),
     }));
   },
@@ -111,6 +116,7 @@ export const run = internalAction({
     const users = await ctx.runMutation(internalApi.smritiDaily.claimDueUsers, { now: Date.now() }) as Array<{
       userId: string;
       channel: "simulator" | "whatsapp";
+      mode: "text" | "template";
       to?: string;
     }>;
     for (const user of users) {
@@ -129,7 +135,7 @@ export const run = internalAction({
       const result = await ctx.runAction(internalApi.smritiDeliveryAdapter.send, {
         channel: user.channel,
         to: user.to,
-        mode: user.channel === "whatsapp" ? "template" : "text",
+        mode: user.mode,
         text,
         templateName: process.env.META_DAILY_SUMMARY_TEMPLATE ?? "smriti_daily_summary",
         templateParameters: [text.slice(0, 900)],
